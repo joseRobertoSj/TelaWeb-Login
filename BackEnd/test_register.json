@@ -1,0 +1,7 @@
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "cargo": "Desenvolvedor",
+  "senha": "senha123",
+  "confirmar_senha": "senha123"
+}
