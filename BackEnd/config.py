@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     ]
     
     # API Info
-    api_title: str = "Neural Core API"
+    api_title: str = "Navarro API"
     api_version: str = "1.0.0"
     
     class Config:

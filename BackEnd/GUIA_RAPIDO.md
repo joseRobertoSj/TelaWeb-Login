@@ -94,6 +94,11 @@ Verifica se a API está online.
 
 ---
 
+venv\Scripts\python main.py
+
+cd c:\Users\vitor.rocha\Desktop\'Nova pasta (2)'\TelaWeb-Login\BackEnd\
+venv\Scripts\python main.py
+
 ## 📌 Testes Realizados (Todos Passaram ✅)
 
 ```

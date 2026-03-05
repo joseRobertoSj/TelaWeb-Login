@@ -14,10 +14,10 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title=settings.api_title,
     version=settings.api_version,
-    description="API para autenticação e gerenciamento de usuários do Neural Core",
-    docs_url="/api/docs",
-    openapi_url="/api/openapi.json",
-    redoc_url="/api/redoc"
+    description="API para autenticação e gerenciamento de usuários da Navarro",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
+    redoc_url="/redoc"
 )
 
 # Configure CORS
