@@ -1,0 +1,140 @@
+# ========================================
+# BACKEND - Python / FastAPI
+# ========================================
+
+# Ambiente Virtual
+BackEnd/venv/
+BackEnd/.venv/
+BackEnd/env/
+BackEnd/ENV/
+
+# Arquivos Python compilados
+BackEnd/__pycache__/
+BackEnd/*.py[cod]
+BackEnd/*$py.class
+BackEnd/*.egg-info/
+BackEnd/.eggs/
+BackEnd/build/
+BackEnd/dist/
+
+# Variáveis de Ambiente (sensíveis)
+BackEnd/.env
+BackEnd/.env.local
+BackEnd/.env.*.local
+BackEnd/.env.backup
+
+# Banco de Dados
+BackEnd/*.db
+BackEnd/*.sqlite
+BackEnd/*.sqlite3
+BackEnd/test.db
+BackEnd/test_db.db
+BackEnd/neural_core.db
+
+# Testes
+BackEnd/.pytest_cache/
+BackEnd/.coverage
+BackEnd/htmlcov/
+BackEnd/.tox/
+
+# Logs
+BackEnd/*.log
+BackEnd/logs/
+
+# IDE
+BackEnd/.vscode/
+BackEnd/.idea/
+BackEnd/*.swp
+BackEnd/*.swo
+BackEnd/*~
+
+# ========================================
+# FRONTEND - Node.js / Vue
+# ========================================
+
+# Dependências
+FrontEnd/node_modules/
+FrontEnd/.pnpm-store/
+
+# Build output
+FrontEnd/dist/
+FrontEnd/.next/
+
+# Variáveis de Ambiente (locais)
+FrontEnd/.env.local
+FrontEnd/.env.*.local
+FrontEnd/.env.backup
+
+# Cache
+FrontEnd/.nuxt/
+FrontEnd/.cache/
+FrontEnd/.parcel-cache/
+
+# IDE
+FrontEnd/.vscode/
+FrontEnd/.idea/
+FrontEnd/*.swp
+FrontEnd/*.swo
+FrontEnd/*~
+
+# Logs
+FrontEnd/npm-debug.log
+FrontEnd/yarn-debug.log
+FrontEnd/yarn-error.log
+FrontEnd/lerna-debug.log
+
+# ========================================
+# GERAL / Multiplataforma
+# ========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VSCode (opcional - comentar se quiser commitar settings)
+# .vscode/
+
+# IntelliJ (opcional)
+# .idea/
+
+# Arquivos de Sistema
+.env.example
+.env.sample
+
+# ========================================
+# IGNORAR - Não fazer commit
+# ========================================
+# Variáveis de ambiente com credenciais
+.env
+.env.local
+.env.*.local
+
+# Bancos de dados locais
+*.db
+*.sqlite
+
+# Tokens e chaves
+.token
+.api_key
+secret_key
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+temp/
+tmp/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+ehthumbs.db

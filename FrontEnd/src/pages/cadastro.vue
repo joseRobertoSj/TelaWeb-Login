@@ -15,15 +15,36 @@
                         <v-card width="100%" max-width="450" flat class="pa-8 rounded-lg"
                             style="background-color: #121212; border: 1px solid #1a1a1a;">
                             <v-card-text>
+                                <!-- Alerta de Sucesso -->
+                                <v-alert
+                                    v-if="mensagemSucesso"
+                                    type="success"
+                                    closable
+                                    class="mb-4"
+                                >
+                                    {{ mensagemSucesso }}
+                                </v-alert>
+
+                                <!-- Alerta de Erro -->
+                                <v-alert
+                                    v-if="mensagemErro"
+                                    type="error"
+                                    closable
+                                    class="mb-4"
+                                >
+                                    {{ mensagemErro }}
+                                </v-alert>
+
                                 <v-form v-model="formularioValido" @submit.prevent="realizarCadastro">
 
                                     <v-text-field v-model="nome" :rules="regrasNome" label="Nome Completo"
                                         prepend-inner-icon="mdi-card-account-details-outline" variant="outlined"
                                         color="#0F52BA" base-color="#0F52BA" class="mb-2" required></v-text-field>
 
-                                    <v-text-field v-model="email" :rules="regrasEmail" label="E-mail"
+                                    <v-text-field v-model="email" :rules="regrasUsuario" label="Usuário Corporativo"
                                         prepend-inner-icon="mdi-email-outline" variant="outlined" color="#0F52BA"
-                                        base-color="#0F52BA" class="mb-2" type="email" required></v-text-field>
+                                        base-color="#0F52BA" class="mb-2"
+                                        required></v-text-field>
 
                                     <v-select v-model="cargo" :items="listaCargos" :rules="regrasCargo" label="Cargo"
                                         prepend-inner-icon="mdi-briefcase-outline" variant="outlined" color="#0F52BA"
@@ -47,10 +68,15 @@
                                         </v-col>
                                     </v-row>
 
-                                    <v-btn type="submit" block size="large" :disabled="!formularioValido"
+                                    <v-btn 
+                                        type="submit" 
+                                        block 
+                                        size="large" 
+                                        :disabled="!formularioValido || carregando"
+                                        :loading="carregando"
                                         class="mt-6 text-white font-weight-bold text-none rounded-pill"
                                         style="background: linear-gradient(135deg, #0F52BA 0%, #0a3d8c 100%);">
-                                        Registrar
+                                        {{ carregando ? 'Registrando...' : 'Registrar' }}
                                     </v-btn>
 
                                 </v-form>
@@ -91,14 +117,21 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { apiService } from '@/services/api'
+
+const router = useRouter()
 
 const formularioValido = ref(false)
 const nome = ref('')
 const email = ref('')
-const cargo = ref(null) // Variável para armazenar o cargo selecionado
+const cargo = ref(null)
 const senha = ref('')
 const confirmarSenha = ref('')
 const mostrarSenha = ref(false)
+const carregando = ref(false)
+const mensagemSucesso = ref('')
+const mensagemErro = ref('')
 
 // Lista de opções que vai aparecer no dropdown
 const listaCargos = [
@@ -114,9 +147,9 @@ const regrasNome = [
     v => (v && v.length >= 3) || 'O nome deve ter pelo menos 3 caracteres'
 ]
 
-const regrasEmail = [
+const regrasUsuario = [
     v => !!v || 'O e-mail é obrigatório',
-    v => /.+@.+\..+/.test(v) || 'Insira um e-mail válido'
+    v => /^[^@]+@navarromed\.com\.br$/.test(v) || 'Use um e-mail corporativo @navarromed.com.br'
 ]
 
 // Regra para garantir que o usuário escolha um cargo
@@ -137,28 +170,31 @@ const regrasConfirmarSenha = [
 const realizarCadastro = async () => {
     if (!formularioValido.value) return
 
+    carregando.value = true
+    mensagemErro.value = ''
+    mensagemSucesso.value = ''
+
     try {
-        const response = await fetch('http://localhost:8000/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                nome: nome.value,
-                email: email.value,
-                cargo: cargo.value, // Enviando o cargo para a API
-                senha: senha.value,
-            }),
+        const response = await apiService.register({
+            nome: nome.value,
+            email: email.value,
+            cargo: cargo.value,
+            senha: senha.value,
+            confirmar_senha: confirmarSenha.value
         })
 
-        if (response.ok) {
-            const data = await response.json()
-            console.log('Usuário criado com sucesso:', data)
-        } else {
-            console.error('Erro ao criar usuário')
-        }
+        mensagemSucesso.value = '✅ Conta criada com sucesso! Redirecionando para login...'
+        
+        // Redirecionar para login após 2 segundos
+        setTimeout(() => {
+            router.push('/')
+        }, 2000)
+
     } catch (error) {
-        console.error('Erro de conexão com o servidor:', error)
+        console.error('Erro ao registrar:', error)
+        mensagemErro.value = error.message || '❌ Erro ao criar conta. Tente novamente.'
+    } finally {
+        carregando.value = false
     }
 }
 </script>

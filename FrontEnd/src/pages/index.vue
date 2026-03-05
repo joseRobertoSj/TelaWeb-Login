@@ -19,13 +19,24 @@
               </v-card-title>
 
               <v-card-text>
+                <!-- Alerta de Sucesso -->
+                <v-alert v-if="mensagemSucesso" type="success" closable class="mb-4">
+                  {{ mensagemSucesso }}
+                </v-alert>
+
+                <!-- Alerta de Erro -->
+                <v-alert v-if="mensagemErro" type="error" closable class="mb-4">
+                  {{ mensagemErro }}
+                </v-alert>
+
                 <v-form @submit.prevent="realizarLogin">
 
                   <v-text-field v-model="username" label="Usuário ou E-mail" prepend-inner-icon="mdi-account-outline"
-                    variant="outlined" color="#0F52BA" base-color="#0F52BA" class="mb-3 mt-4" required></v-text-field>
+                    :rules="regrasUsername" variant="outlined" color="#0F52BA" base-color="#0F52BA" class="mb-3 mt-4"
+                    hint="Exemplo: usuario@navarromed.com.br" required></v-text-field>
 
                   <v-text-field v-model="password" label="Senha" prepend-inner-icon="mdi-lock-outline"
-                    :type="mostrarSenha ? 'text' : 'password'"
+                    :rules="regrasSenha" :type="mostrarSenha ? 'text' : 'password'"
                     :append-inner-icon="mostrarSenha ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="mostrarSenha = !mostrarSenha" variant="outlined" color="#0F52BA"
                     base-color="#0F52BA" required></v-text-field>
@@ -34,10 +45,10 @@
                     <a href="#" class="text-caption text-decoration-none" style="color: #0F52BA;">Esqueceu a senha?</a>
                   </div>
 
-                  <v-btn type="submit" block size="large"
-                    class="mt-6 text-black font-weight-bold text-none rounded-pill"
+                  <v-btn type="submit" block size="large" :disabled="carregando || !username || !password"
+                    :loading="carregando" class="mt-6 text-black font-weight-bold text-none rounded-pill"
                     style="background: linear-gradient(135deg, #0F52BA 0%, #0F52BA 100%);">
-                    Entrar na Rede
+                    {{ carregando ? 'Entrando...' : 'Entrar na Rede' }}
                   </v-btn>
 
                 </v-form>
@@ -57,7 +68,7 @@
             <v-carousel cycle interval="6000" height="100%" hide-delimiter-background show-arrows="hover"
               class="w-100 h-100">
               <v-carousel-item
-                src="https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1494412552100-42e4e7a74ec6?q=80&w=1600&auto=format&fit=crop"
                 cover>
                 <div class="d-flex flex-column align-center justify-end fill-height pa-12 pb-16"
                   style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);">
@@ -68,7 +79,7 @@
               </v-carousel-item>
 
               <v-carousel-item
-                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1600&auto=format&fit=crop"
                 cover>
                 <div class="d-flex flex-column align-center justify-end fill-height pa-12 pb-16"
                   style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);">
@@ -79,7 +90,8 @@
               </v-carousel-item>
 
               <v-carousel-item
-                src="https://images.unsplash.com/photo-1544006659-f0b21f04cb1d?q=80&w=1600&auto=format&fit=crop" cover>
+                src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=1600&auto=format&fit=crop"
+                cover>
                 <div class="d-flex flex-column align-center justify-end fill-height pa-12 pb-16"
                   style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);">
                   <div class="text-h3 font-weight-bold text-white text-center pb-3">Expansão de Possibilidades</div>
@@ -99,32 +111,75 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { apiService } from '@/services/api'
+
+const router = useRouter()
 
 const username = ref('')
 const password = ref('')
 const mostrarSenha = ref(false)
+const carregando = ref(false)
+const mensagemErro = ref('')
+const mensagemSucesso = ref('')
+
+// Regras de validação
+const regrasUsername = [
+  v => !!v || 'Usuário ou e-mail é obrigatório',
+  v => /^[^@]+@navarromed\.com\.br$/.test(v) || 'Use seu e-mail corporativo @navarromed.com.br'
+]
+
+const regrasSenha = [
+  v => !!v || 'Senha é obrigatória',
+  v => (v && v.length >= 6) || 'A senha deve ter no mínimo 6 caracteres'
+]
 
 const realizarLogin = async () => {
+  if (!username.value || !password.value) {
+    mensagemErro.value = 'Por favor, preencha todos os campos'
+    return
+  }
+
+  carregando.value = true
+  mensagemErro.value = ''
+  mensagemSucesso.value = ''
+
   try {
-    const response = await fetch('http://localhost:8000/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        username: username.value,
-        password: password.value,
-      }),
+    const response = await apiService.login({
+      username: username.value,
+      password: password.value
     })
 
-    if (response.ok) {
-      const data = await response.json()
-      console.log('Login realizado com sucesso! Token:', data.access_token)
-    } else {
-      console.error('Credenciais inválidas')
-    }
+    console.log('Login realizado com sucesso!', response.user)
+
+    // Mostrar mensagem de sucesso
+    mensagemSucesso.value = `✅ Bem-vindo, ${response.user.nome}! Entrando no sistema...`
+
+    // Limpar campos após sucesso
+    username.value = ''
+    password.value = ''
+
+    // Redirecionar para dashboard ou página principal
+    setTimeout(() => {
+      router.push({ name: 'dashboard', replace: true }).catch(err => {
+        console.log('Redirecionando para home...')
+        window.location.href = '/dashboard'
+      })
+    }, 2000)
+
   } catch (error) {
-    console.error('Erro de conexão com o servidor backend:', error)
+    console.error('Erro ao fazer login:', error)
+
+    // Mensagens de erro mais específicas
+    if (error.message.includes('401') || error.message.includes('Invalid')) {
+      mensagemErro.value = '❌ Usuário ou senha incorretos'
+    } else if (error.message.includes('conexão')) {
+      mensagemErro.value = '❌ Erro ao conectar com o servidor'
+    } else {
+      mensagemErro.value = error.message || '❌ Erro ao fazer login. Tente novamente.'
+    }
+  } finally {
+    carregando.value = false
   }
 }
 </script>
